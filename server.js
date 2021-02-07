@@ -120,10 +120,6 @@ function viewEmployeeByDepartment() {
   connection.query(query, function (err, res) {
     if (err) throw err;
 
-    // const departmentChoices = res.map(({ id, name }) => ({
-    //   name: `${id} ${name}`,
-    //   value: id
-    // }));
 
     const departmentChoices = res.map(data => ({
       value: data.id, name: data.name
@@ -134,7 +130,6 @@ function viewEmployeeByDepartment() {
 
     promptDepartment(departmentChoices);
   });
-  // console.log(query.sql);
 }
 
 // User choose the department list, then employees pop up
