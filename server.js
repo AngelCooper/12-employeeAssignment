@@ -14,45 +14,39 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
   if (err) throw err;
   // run the start function after the connection is made to prompt the user
-  firstPrompt();
+  beginningPrompt();
 });
 
 // function which prompts the user for what action they should take
-function firstPrompt() {
+function beginningPrompt() {
 
   inquirer
     .prompt({
       type: "list",
-      name: "task",
+      name: "view",
       message: "Would you like to do?",
       choices: [
-        "View Employees",
-        "View Employees by Department",
-        // "View Employees by Manager",
+        "View All Employees",
+        "View All Department",
         "Add Employee",
         "Remove Employees",
         "Update Employee Role",
         "Add Role",
-        // "Remove Role",
-        // "Update Employee Manager",
-        "End"]
+        "Leave App"]
     })
-    .then(function ({ task }) {
-      switch (task) {
-        case "View Employees":
+    .then(function ({ view }) {
+      switch (view) {
+        case "View All Employees":
           viewEmployee();
           break;
-        case "View Employees by Department":
+        case "View All Department":
           viewEmployeeByDepartment();
           break;
-        // case "View Employees by Manager":
-        //   viewEmployeeByManager();
-        //   break;
         case "Add Employee":
           addEmployee();
           break;
         case "Remove Employees":
-          removeEmployees();
+          deleteEmployees();
           break;
         case "Update Employee Role":
           updateEmployeeRole();
@@ -60,22 +54,14 @@ function firstPrompt() {
         case "Add Role":
           addRole();
           break;
-        // case "Remove Role":
-        //   removeRole();
-        //   break;
-
-        // case "Update Employee MAnager":
-        //   updateEmployeeManager();
-        //   break;
-
-        case "End":
+        case "Leave App":
           connection.end();
           break;
       }
     });
 }
 
-//////////////////========================= 1."View Employees"/ READ all, SELECT * FROM
+
 
 function viewEmployee() {
   console.log("Viewing employees\n");
@@ -96,40 +82,18 @@ function viewEmployee() {
     console.table(res);
     console.log("Employees viewed!\n");
 
-    firstPrompt();
+    beginningPrompt();
   });
-  // console.log(query.sql);
 }
-
-//========================================= 2."View Employees by Department" / READ by, SELECT * FROM
 
 // Make a department array
 
 function viewEmployeeByDepartment() {
-  console.log("Viewing employees by department\n");
-
-  var query =
-    `SELECT d.id, d.name, r.salary AS budget
-  FROM employee e
-  LEFT JOIN role r
-	ON e.role_id = r.id
-  LEFT JOIN department d
-  ON d.id = r.department_id
-  GROUP BY d.id, d.name`
-
-  connection.query(query, function (err, res) {
+  connection.query('SELECT * FROM employeesDB.department:', (err, res) => {
     if (err) throw err;
-
-
-    const departmentChoices = res.map(data => ({
-      value: data.id, name: data.name
-    }));
-
     console.table(res);
-    console.log("Department view succeed!\n");
-
-    promptDepartment(departmentChoices);
-  });
+    beginningPrompt();
+  })
 }
 
 // User choose the department list, then employees pop up
@@ -163,18 +127,12 @@ function promptDepartment(departmentChoices) {
         console.table("response ", res);
         console.log(res.affectedRows + "Employees are viewed!\n");
 
-        firstPrompt();
+        beginningPrompt();
       });
     });
 }
 
-//========================================= 3."View Employees by Manager"
 
-
-
-//========================================= 4."Add Employee" / CREATE: INSERT INTO
-
-// Make a employee array
 
 function addEmployee() {
   console.log("Inserting an employee!")
@@ -217,12 +175,7 @@ function promptInsert(roleChoices) {
         message: "What is the employee's role?",
         choices: roleChoices
       },
-      // {
-      //   name: "manager_id",
-      //   type: "list",
-      //   message: "What is the employee's manager_id?",
-      //   choices: manager
-      // }
+   
     ])
     .then(function (answer) {
       console.log(answer);
@@ -242,17 +195,14 @@ function promptInsert(roleChoices) {
           console.table(res);
           console.log(res.insertedRows + "Inserted successfully!\n");
 
-          firstPrompt();
+          beginningPrompt();
         });
-      // console.log(query.sql);
+      
     });
 }
 
-//========================================= 5."Remove Employees" / DELETE, DELETE FROM
 
-// Make a employee array to delete
-
-function removeEmployees() {
+function deleteEmployees() {
   console.log("Deleting an employee");
 
   var query =
@@ -296,7 +246,7 @@ function promptDelete(deleteEmployeeChoices) {
         console.table(res);
         console.log(res.affectedRows + "Deleted!\n");
 
-        firstPrompt();
+        beginningPrompt();
       });
       // console.log(query.sql);
     });
@@ -389,7 +339,7 @@ function promptEmployeeRole(employeeChoices, roleChoices) {
           console.table(res);
           console.log(res.affectedRows + "Updated successfully!");
 
-          firstPrompt();
+          beginningPrompt();
         });
       // console.log(query.sql);
     });
@@ -397,32 +347,56 @@ function promptEmployeeRole(employeeChoices, roleChoices) {
 
 
 
-//////////////////========================= 7."Add Role" / CREATE: INSERT INTO
+//adding role
 
 function addRole() {
 
-  var query =
-    `SELECT d.id, d.name, r.salary AS budget
-    FROM employee e
-    JOIN role r
-    ON e.role_id = r.id
-    JOIN department d
-    ON d.id = r.department_id
-    GROUP BY d.id, d.name`
+  inquirer,prompt([
 
-  connection.query(query, function (err, res) {
-    if (err) throw err;
+    {
+      type: 'inpuut',
+      message: 'What new role would like to create?',
+      name: 'newRole'
+    },
+    {
+      type: 'input',
+      message: 'What would be the Yearly salary for this role?',
+      name: "salary"
+    },
+    {
+      type: 'list',
+      message: 'What department will this role belong to?',
+      choices: departmentChoices,
+      name: 'department'
+    },
+  ]).then((response) => {
+    connection.query('SELECT * FROM department', (err, res) => {
+      if(err) throw err;
+      res.foreach(({id, d}))
+    })
+  })
+  // var query =
+  //   `SELECT d.id, d.name, r.salary AS budget
+  //   FROM employee e
+  //   JOIN role r
+  //   ON e.role_id = r.id
+  //   JOIN department d
+  //   ON d.id = r.department_id
+  //   GROUP BY d.id, d.name`
 
-    // (callbackfn: (value: T, index: number, array: readonly T[]) => U, thisArg?: any)
-    const departmentChoices = res.map(({ id, name }) => ({
-      value: id, name: `${id} ${name}`
-    }));
+  // connection.query(query, function (err, res) {
+  //   if (err) throw err;
 
-    console.table(res);
-    console.log("Department array!");
+  //   // (callbackfn: (value: T, index: number, array: readonly T[]) => U, thisArg?: any)
+  //   const departmentChoices = res.map(({ id, name }) => ({
+  //     value: id, name: `${id} ${name}`
+  //   }));
 
-    promptAddRole(departmentChoices);
-  });
+  //   console.table(res);
+  //   console.log("Department array!");
+
+  //   promptAddRole(departmentChoices);
+  // });
 }
 
 function promptAddRole(departmentChoices) {
@@ -461,7 +435,7 @@ function promptAddRole(departmentChoices) {
           console.table(res);
           console.log("Role Inserted!");
 
-          firstPrompt();
+          beginningPrompt();
         });
 
     });
