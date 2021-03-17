@@ -1,6 +1,5 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-// const sql = require("./database");
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -248,11 +247,11 @@ function promptDelete(deleteEmployeeChoices) {
 
         beginningPrompt();
       });
-      // console.log(query.sql);
+    
     });
 }
 
-//========================================= 6."Update Employee Role" / UPDATE,
+// 6."Update Employee Role" / UPDATE,
 
 function updateEmployeeRole() { 
   employeeArray();
@@ -341,7 +340,7 @@ function promptEmployeeRole(employeeChoices, roleChoices) {
 
           beginningPrompt();
         });
-      // console.log(query.sql);
+      
     });
 }
 
