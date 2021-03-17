@@ -351,52 +351,29 @@ function promptEmployeeRole(employeeChoices, roleChoices) {
 
 function addRole() {
 
-  inquirer,prompt([
 
-    {
-      type: 'inpuut',
-      message: 'What new role would like to create?',
-      name: 'newRole'
-    },
-    {
-      type: 'input',
-      message: 'What would be the Yearly salary for this role?',
-      name: "salary"
-    },
-    {
-      type: 'list',
-      message: 'What department will this role belong to?',
-      choices: departmentChoices,
-      name: 'department'
-    },
-  ]).then((response) => {
-    connection.query('SELECT * FROM department', (err, res) => {
-      if(err) throw err;
-      res.foreach(({id, d}))
-    })
-  })
-  // var query =
-  //   `SELECT d.id, d.name, r.salary AS budget
-  //   FROM employee e
-  //   JOIN role r
-  //   ON e.role_id = r.id
-  //   JOIN department d
-  //   ON d.id = r.department_id
-  //   GROUP BY d.id, d.name`
+  var query =
+    `SELECT d.id, d.name, r.salary AS budget
+    FROM employee e
+    JOIN role r
+    ON e.role_id = r.id
+    JOIN department d
+    ON d.id = r.department_id
+    GROUP BY d.id, d.name`
 
-  // connection.query(query, function (err, res) {
-  //   if (err) throw err;
+  connection.query(query, function (err, res) {
+    if (err) throw err;
 
-  //   // (callbackfn: (value: T, index: number, array: readonly T[]) => U, thisArg?: any)
-  //   const departmentChoices = res.map(({ id, name }) => ({
-  //     value: id, name: `${id} ${name}`
-  //   }));
+    // (callbackfn: (value: T, index: number, array: readonly T[]) => U, thisArg?: any)
+    const departmentChoices = res.map(({ id, name }) => ({
+      value: id, name: `${id} ${name}`
+    }));
 
-  //   console.table(res);
-  //   console.log("Department array!");
+    console.table(res);
+    console.log("Department array!");
 
-  //   promptAddRole(departmentChoices);
-  // });
+    promptAddRole(departmentChoices);
+  });
 }
 
 function promptAddRole(departmentChoices) {
